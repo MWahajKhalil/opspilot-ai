@@ -31,3 +31,8 @@ coverage/
 *.db
 *.sqlite
 *.sqlite3
+
+
+# Private learning records (kept locally and in Notion)
+docs/learning/
+docs/PROGRESS.md
