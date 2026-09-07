@@ -1,0 +1,33 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Editors
+.vscode/settings.json
+.idea/
+
+# JavaScript / Next.js
+node_modules/
+.next/
+out/
+coverage/
+
+# Logs and local databases
+*.log
+*.db
+*.sqlite
+*.sqlite3
