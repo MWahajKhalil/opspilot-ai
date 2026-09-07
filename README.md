@@ -36,6 +36,12 @@ Module 9 FastAPI checkpoint started. Milestone 1, Device API foundation, is in p
 
 The canonical project location is `/Users/mwahajkhalil/Learnings/OpsPilot AI`.
 
+## Repository
+
+- GitHub: https://github.com/MWahajKhalil/opspilot-ai
+- Visibility: Public
+- Default branch: `main`
+
 ## Next action
 
 Complete checkpoint Step 1: create the project skeleton and a minimal FastAPI application with lifespan, then submit it for review.
