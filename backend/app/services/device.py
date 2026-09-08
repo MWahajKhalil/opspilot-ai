@@ -21,7 +21,7 @@ class DeviceService: #this class will be used to perform business logic on devic
                 return d
         return None 
     
-    
+
     def create_device(self, device:DeviceCreate)-> DeviceResponse:
         new_id = max([d.id for d in self._devices] + [0]) + 1
       #  new_device = DeviceResponse(**device.model_dump(), id=new_id)
@@ -34,7 +34,10 @@ class DeviceService: #this class will be used to perform business logic on devic
 
         self._devices.append(new_device)
         return new_device
+
+        
     
+
     
         
 
@@ -46,6 +49,3 @@ class DeviceService: #this class will be used to perform business logic on devic
     
     
     
-
-
-
