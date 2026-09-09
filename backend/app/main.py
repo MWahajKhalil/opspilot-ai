@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from app.api.device import router as device_router
+
 
 @asynccontextmanager
 async def lifespan(app):
@@ -8,6 +10,8 @@ async def lifespan(app):
     print("Shutting down...")
     
 app = FastAPI(lifespan=lifespan)
+
+app.include_router(device_router)
 
 
 
