@@ -11,14 +11,21 @@ class DeviceService: #this class will be used to perform business logic on devic
         # _means internal use not private 
 
     
-    def list_devices(self)-> list[DeviceResponse]:
-        return self._devices
+    def list_devices(self,status:Optional[str] = None)-> list[DeviceResponse]:
+        if status is None:
+            return self._devices
+        
+        return [d for d in self._devices if d.status == status]
+    
+
+        
 
     
     def get_device(self, device_id:int) -> Optional[DeviceResponse]:
         for d in self._devices:
             if d.id == device_id:
                 return d
+
         return None 
     
 
