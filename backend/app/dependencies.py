@@ -1,8 +1,8 @@
 from app.services.device import DeviceService
 
-_device_service = DeviceService() #this is used for dependency injection in routes 
+
+_device_service = DeviceService()
+
 
 def get_device_service() -> DeviceService:
     return _device_service
-
-
