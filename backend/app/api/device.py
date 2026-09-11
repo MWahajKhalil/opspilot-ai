@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.dependencies import get_device_service
-from app.schemas.device import DeviceResponse
+from app.schemas.device import DeviceResponse, DeviceCreate
 from app.services.device import DeviceService
 from typing import Optional
 
@@ -33,3 +33,9 @@ def get_device(
     return device
 
 
+@router.post("", response_model=DeviceResponse, status_code=201)
+def create_device(
+    device: DeviceCreate,
+    service: DeviceService = Depends(get_device_service)
+    ) -> DeviceResponse:
+    return service.create_device(device)
