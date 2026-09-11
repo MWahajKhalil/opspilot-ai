@@ -39,3 +39,5 @@ def create_device(
     service: DeviceService = Depends(get_device_service)
     ) -> DeviceResponse:
     return service.create_device(device)
+
+
