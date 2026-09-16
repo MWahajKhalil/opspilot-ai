@@ -6,3 +6,4 @@ _device_service = DeviceService()
 
 def get_device_service() -> DeviceService:
     return _device_service
+
