@@ -1,9 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
-
+from app.repositories.device import DeviceRepository
 from app.dependencies import get_device_service
 from app.main import app
 from app.services.device import DeviceService
+
 
 
 @pytest.fixture
@@ -101,3 +102,14 @@ def test_create_device_missing_status_returns_422(client):
 
     assert response.status_code == 422
     assert response.json()["detail"][0]["loc"] == ["body", "status"]
+
+def test_create_device_repo():
+    _device_repository = DeviceRepository()
+    create_response = _device_repository.create_device(DeviceCreate(name="Pump-17", status="ok"))
+    assert create_response == {
+        "id": 3,
+        "name": "Pump-17",
+        "status": "ok",
+    }   
+
+
