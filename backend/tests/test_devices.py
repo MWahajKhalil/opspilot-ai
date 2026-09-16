@@ -1,19 +1,16 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from app.dependencies import get_device_service
+from app.dependencies import get_device_repository
 from app.main import app
 from app.repositories.device import DeviceRepository
 from app.schemas.device import DeviceCreate
-from app.services.device import DeviceService
-
 
 @pytest.fixture
 def client():
     repository = DeviceRepository()
-    service = DeviceService(repository)
 
-    app.dependency_overrides[get_device_service] = lambda: service
+    app.dependency_overrides[get_device_repository] = lambda: repository
 
     with TestClient(app) as test_client:
         yield test_client
