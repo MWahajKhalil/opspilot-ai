@@ -66,7 +66,7 @@ def test_get_missing_device_returns_404(client):
     response = client.get("/devices/999")
 
     assert response.status_code == 404
-    assert response.json() == {"detail": "Device not found"}
+    assert response.json() == {"detail": "Device with id 999 not found"}
 
 
 def test_invalid_device_id_returns_422(client):

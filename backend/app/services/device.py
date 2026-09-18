@@ -29,3 +29,6 @@ class DeviceService:
 
     def create_device(self, device: DeviceCreate) -> DeviceResponse:
         return self._device_repository.create_device(device)
+
+    
+    

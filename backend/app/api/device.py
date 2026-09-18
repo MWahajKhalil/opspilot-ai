@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-
+from app.errors.device import DeviceNotFoundError
 from app.dependencies import get_device_service
 from app.schemas.device import DeviceCreate, DeviceResponse
 from app.services.device import DeviceService
@@ -22,10 +22,12 @@ def get_device(
     device_id: int,
     service: DeviceService = Depends(get_device_service),
 ) -> DeviceResponse:
-    device = service.get_device(device_id)
-    if device is None:
-        raise HTTPException(status_code=404, detail="Device not found")
-    return device
+
+    
+    try:
+        return service.get_device(device_id)
+    except DeviceNotFoundError as error:
+        raise HTTPException(status_code=404, detail=str(error))
 
 
 @router.post("", response_model=DeviceResponse, status_code=201)
