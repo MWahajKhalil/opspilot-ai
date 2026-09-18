@@ -1,6 +1,6 @@
 import httpx
 
-from ..schemas.telemetry import TemperatureReading
+from app.schemas.telemetry import TemperatureReading
 
 class TemperatureClient:
     def __init__(self, http_client: httpx.Client, base_url: str):
@@ -9,8 +9,7 @@ class TemperatureClient:
 
     
     def get_temperature(self, device_id: int) -> TemperatureReading:
-        pass
-        #response = self._http_client.get(f"{self._base_url}/{device_id}/temperature")
+        response = self._http_client.get(f"{self._base_url}/devices/{device_id}/temperature")
         
 
     
