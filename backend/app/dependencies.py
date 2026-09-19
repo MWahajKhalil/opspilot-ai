@@ -1,11 +1,13 @@
 import httpx
 from fastapi import Depends
 
+from unittest.mock import Mock
 from app.clients.temperature import TemperatureClient
 from app.repositories.device import DeviceRepository
 from app.services.device import DeviceService
 
 _device_repository = DeviceRepository()
+
 _httpx_client = httpx.Client()
 
 

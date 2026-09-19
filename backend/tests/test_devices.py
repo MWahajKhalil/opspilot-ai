@@ -1,12 +1,12 @@
+import httpx
 import pytest
-import httpx, requests
+
 from fastapi.testclient import TestClient
 
-from app.dependencies import get_device_repository
+from app.dependencies import get_device_repository, get_http_client
 from app.main import app
 from app.repositories.device import DeviceRepository
 from app.schemas.device import DeviceCreate
-from app.schemas.telemetry import TemperatureReading
 
 
 
@@ -15,7 +15,11 @@ from app.schemas.telemetry import TemperatureReading
 def client():
     repository = DeviceRepository()
 
+    transport = httpx.MockTransport(fake_temperature_service)
+    http_client = httpx.Client(transport=transport)
+
     app.dependency_overrides[get_device_repository] = lambda: repository
+    app.dependency_overrides[get_http_client] = lambda: http_client
 
     with TestClient(app) as test_client:
         yield test_client
@@ -121,10 +125,9 @@ def test_create_device_repo():
         "status": "ok",
     }
 
-
 def fake_temperature_service(
     request: httpx.Request,
-    )-> TemperatureReading:
+    )-> httpx.Response:
     return httpx.Response(
         status_code=200,
         json={
@@ -133,6 +136,3 @@ def fake_temperature_service(
         },
     )
 
-
-
-    
