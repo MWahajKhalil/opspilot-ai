@@ -4,7 +4,7 @@ from app.clients.temperature import TemperatureClient
 from app.errors.device import DeviceNotFoundError
 from app.repositories.device import DeviceRepository
 from app.schemas.device import DeviceCreate, DeviceResponse
-
+from app.schemas.telemetry import TemperatureReading
 
 class DeviceService:
     def __init__(
@@ -31,3 +31,10 @@ class DeviceService:
 
     def create_device(self, device: DeviceCreate) -> DeviceResponse:
         return self._device_repository.create_device(device)
+
+    def get_temperature_for_device(self, device_id: int) -> TemperatureReading:
+        self.get_device(device_id)
+
+        temperature_reading = self._temperature_client.get_temperature(device_id)
+
+        return temperature_reading

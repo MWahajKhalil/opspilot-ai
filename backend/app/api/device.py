@@ -1,9 +1,11 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from app.errors.device import DeviceNotFoundError
+
 from app.dependencies import get_device_service
+from app.errors.device import DeviceNotFoundError
 from app.schemas.device import DeviceCreate, DeviceResponse
+from app.schemas.telemetry import TemperatureReading
 from app.services.device import DeviceService
 
 router = APIRouter(prefix="/devices", tags=["devices"])
@@ -22,8 +24,6 @@ def get_device(
     device_id: int,
     service: DeviceService = Depends(get_device_service),
 ) -> DeviceResponse:
-
-    
     try:
         return service.get_device(device_id)
     except DeviceNotFoundError as error:
@@ -36,3 +36,14 @@ def create_device(
     service: DeviceService = Depends(get_device_service),
 ) -> DeviceResponse:
     return service.create_device(device)
+
+
+@router.get("/{device_id}/temperature", response_model=TemperatureReading)
+def get_temperature_for_device(
+    device_id: int,
+    service: DeviceService = Depends(get_device_service),
+) -> TemperatureReading:
+    try:
+        return service.get_temperature_for_device(device_id)
+    except DeviceNotFoundError as error:
+        raise HTTPException(status_code=404, detail=str(error))
