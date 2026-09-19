@@ -1,10 +1,15 @@
 import pytest
+import httpx, requests
 from fastapi.testclient import TestClient
 
 from app.dependencies import get_device_repository
 from app.main import app
 from app.repositories.device import DeviceRepository
 from app.schemas.device import DeviceCreate
+from app.schemas.telemetry import TemperatureReading
+
+
+
 
 @pytest.fixture
 def client():
@@ -115,3 +120,19 @@ def test_create_device_repo():
         "name": "Pump-17",
         "status": "ok",
     }
+
+
+def fake_temperature_service(
+    request: httpx.Request,
+    )-> TemperatureReading:
+    return httpx.Response(
+        status_code=200,
+        json={
+            "device_id": 1,
+            "temperature_celsius": 72.5,
+        },
+    )
+
+
+
+    
