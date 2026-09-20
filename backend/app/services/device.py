@@ -29,8 +29,10 @@ class DeviceService:
             raise DeviceNotFoundError(device_id)
         return device
 
+
     def create_device(self, device: DeviceCreate) -> DeviceResponse:
         return self._device_repository.create_device(device)
+
 
     def get_temperature_for_device(self, device_id: int) -> TemperatureReading:
         self.get_device(device_id)
