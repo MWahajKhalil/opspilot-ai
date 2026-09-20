@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-labelledby="title desc">
+<title id="title">OpsPilot test request with fake external service</title><desc id="desc">The test calls the real FastAPI route. Dependency overrides supply a fresh repository and an HTTP client with MockTransport. The real service and temperature client run, but no network request is made.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><path d="M0 0L10 3.5L0 7Z" fill="#64748b"/></marker><style>text{font-family:Inter,Arial,sans-serif;fill:#eaf2ff}.title{font-size:30px;font-weight:700}.sub{font-size:17px;fill:#a8bad2}.lane{fill:#13243a;stroke:#36516d;stroke-width:2}.fake{fill:#2b2132;stroke:#c98c9b;stroke-width:2}.head{font-size:18px;font-weight:650;text-anchor:middle}.life{stroke:#41607f;stroke-width:2;stroke-dasharray:7 7}.arrow{stroke:#8fb4da;stroke-width:2.5;marker-end:url(#arrow)}.return{stroke:#85c9b1;stroke-width:2.5;stroke-dasharray:7 5;marker-end:url(#arrow)}.label{font-size:16px;text-anchor:middle}.note{font-size:16px;fill:#dbeafe}</style></defs>
+<rect width="1600" height="1120" fill="#091522"/>
+<text x="42" y="48" class="title">Test request with fake external service</text><text x="42" y="78" class="sub">The OpsPilot workflow stays real; only outbound transport is replaced.</text>
+<g><rect class="lane" x="32" y="108" width="150" height="58" rx="10"/><rect class="lane" x="232" y="108" width="150" height="58" rx="10"/><rect class="lane" x="432" y="108" width="150" height="58" rx="10"/><rect class="lane" x="632" y="108" width="150" height="58" rx="10"/><rect class="lane" x="832" y="108" width="150" height="58" rx="10"/><rect class="lane" x="1032" y="108" width="150" height="58" rx="10"/><rect class="fake" x="1232" y="108" width="150" height="58" rx="10"/><rect class="fake" x="1432" y="108" width="150" height="58" rx="10"/>
+<text class="head" x="107" y="143">Pytest</text><text class="head" x="307" y="143">TestClient</text><text class="head" x="507" y="143">Depends</text><text class="head" x="707" y="143">DeviceService</text><text class="head" x="907" y="143">Repository</text><text class="head" x="1107" y="143">TempClient</text><text class="head" x="1307" y="143">httpx client</text><text class="head" x="1507" y="143">MockTransport</text></g>
+<path class="life" d="M107 166V1080M307 166V1080M507 166V1080M707 166V1080M907 166V1080M1107 166V1080M1307 166V1080M1507 166V1080"/>
+<path class="arrow" d="M107 210H307"/><text class="label" x="207" y="200">client.get(...)</text>
+<path class="arrow" d="M307 270H507"/><text class="label" x="407" y="260">Resolve dependencies</text>
+<path class="arrow" d="M507 330H907"/><text class="label" x="707" y="320">Fresh repository override</text>
+<path class="arrow" d="M507 390H1307"/><text class="label" x="907" y="380">Fake-configured HTTP client override</text>
+<path class="arrow" d="M507 450H1107"/><text class="label" x="807" y="440">Construct real TemperatureClient</text>
+<path class="arrow" d="M507 510H707"/><text class="label" x="607" y="500">Construct real service</text>
+<path class="arrow" d="M307 570H707"/><text class="label" x="507" y="560">get_temperature_for_device(1)</text>
+<path class="arrow" d="M707 630H907"/><text class="label" x="807" y="620">get_device(1)</text>
+<path class="return" d="M907 680H707"/><text class="label" x="807" y="670">Existing device</text>
+<path class="arrow" d="M707 730H1107"/><text class="label" x="907" y="720">get_temperature(1)</text>
+<path class="arrow" d="M1107 780H1307"/><text class="label" x="1207" y="770">GET provider URL</text>
+<path class="arrow" d="M1307 830H1507"/><text class="label" x="1407" y="820">Intercept; no network</text>
+<path class="return" d="M1507 880H1307"/><text class="label" x="1407" y="870">fake callback → 200 JSON</text>
+<path class="return" d="M1307 930H1107"/><text class="label" x="1207" y="920">HTTP response</text>
+<path class="return" d="M1107 980H707"/><text class="label" x="907" y="970">validated TemperatureReading</text>
+<path class="return" d="M707 1030H107"/><text class="label" x="407" y="1020">200 JSON through route</text>
+<text class="sub" x="42" y="1100">MockTransport calls fake_temperature_service(request), which returns an httpx.Response; no live provider is contacted.</text>
+</svg>

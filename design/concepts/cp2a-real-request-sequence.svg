@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1090" viewBox="0 0 1600 1090" role="img" aria-labelledby="title desc">
+<title id="title">OpsPilot real temperature request sequence</title><desc id="desc">A request passes from user to route, dependency providers, service, repository, external client, HTTP client, and external provider. A missing device returns 404 before the external call.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><path d="M0 0L10 3.5L0 7Z" fill="#64748b"/></marker><style>text{font-family:Inter,Arial,sans-serif;fill:#eaf2ff}.title{font-size:30px;font-weight:700}.sub{font-size:17px;fill:#a8bad2}.lane{fill:#13243a;stroke:#36516d;stroke-width:2}.head{font-size:18px;font-weight:650;text-anchor:middle}.life{stroke:#41607f;stroke-width:2;stroke-dasharray:7 7}.arrow{stroke:#8fb4da;stroke-width:2.5;marker-end:url(#arrow)}.return{stroke:#85c9b1;stroke-width:2.5;stroke-dasharray:7 5;marker-end:url(#arrow)}.label{font-size:16px;text-anchor:middle}.note{font-size:16px;fill:#dbeafe}.branch{fill:#2b2132;stroke:#c98c9b;stroke-width:1.5}.success{fill:#162e2c;stroke:#4baf95;stroke-width:1.5}</style></defs>
+<rect width="1600" height="1090" fill="#091522"/>
+<text x="42" y="48" class="title">Real application request</text><text x="42" y="78" class="sub">GET /devices/{id}/temperature · chronological execution</text>
+<g><rect class="lane" x="32" y="108" width="150" height="58" rx="10"/><rect class="lane" x="232" y="108" width="150" height="58" rx="10"/><rect class="lane" x="432" y="108" width="150" height="58" rx="10"/><rect class="lane" x="632" y="108" width="150" height="58" rx="10"/><rect class="lane" x="832" y="108" width="150" height="58" rx="10"/><rect class="lane" x="1032" y="108" width="150" height="58" rx="10"/><rect class="lane" x="1232" y="108" width="150" height="58" rx="10"/><rect class="lane" x="1432" y="108" width="150" height="58" rx="10"/>
+<text class="head" x="107" y="143">User</text><text class="head" x="307" y="143">FastAPI route</text><text class="head" x="507" y="143">Depends</text><text class="head" x="707" y="143">DeviceService</text><text class="head" x="907" y="143">Repository</text><text class="head" x="1107" y="143">TempClient</text><text class="head" x="1307" y="143">httpx.Client</text><text class="head" x="1507" y="143">Provider</text></g>
+<path class="life" d="M107 166V1055M307 166V1055M507 166V1055M707 166V1055M907 166V1055M1107 166V1055M1307 166V1055M1507 166V1055"/>
+<path class="arrow" d="M107 210H307"/><text class="label" x="207" y="200">GET temperature</text>
+<path class="arrow" d="M307 270H507"/><text class="label" x="407" y="260">Resolve service</text>
+<path class="arrow" d="M507 330H707"/><text class="label" x="607" y="320">Inject collaborators</text>
+<path class="arrow" d="M307 390H707"/><text class="label" x="507" y="380">get_temperature_for_device(id)</text>
+<path class="arrow" d="M707 450H907"/><text class="label" x="807" y="440">get_device(id)</text>
+<path class="return" d="M907 510H707"/><text class="label" x="807" y="500">Device or None</text>
+<rect class="branch" x="42" y="542" width="1516" height="130" rx="12"/><text class="note" x="60" y="568">IF DEVICE DOES NOT EXIST</text>
+<path class="return" d="M707 600H307"/><text class="label" x="507" y="590">raise DeviceNotFoundError</text>
+<path class="return" d="M307 645H107"/><text class="label" x="207" y="635">404 Not Found</text>
+<rect class="success" x="42" y="694" width="1516" height="340" rx="12"/><text class="note" x="60" y="720">ELSE DEVICE EXISTS</text>
+<path class="arrow" d="M707 750H1107"/><text class="label" x="907" y="740">get_temperature(id)</text>
+<path class="arrow" d="M1107 800H1307"/><text class="label" x="1207" y="790">GET provider URL</text>
+<path class="arrow" d="M1307 850H1507"/><text class="label" x="1407" y="840">network request</text>
+<path class="return" d="M1507 900H1107"/><text class="label" x="1307" y="890">JSON response via httpx</text>
+<path class="return" d="M1107 950H707"/><text class="label" x="907" y="940">validated TemperatureReading</text>
+<path class="return" d="M707 1000H107"/><text class="label" x="407" y="990">200 JSON via route</text>
+<text class="sub" x="42" y="1070">Key boundary: no external request is made when the local device does not exist.</text>
+</svg>

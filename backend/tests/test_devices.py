@@ -23,7 +23,8 @@ def client():
 
     with TestClient(app) as test_client:
         yield test_client
-
+    
+    http_client.close()
     app.dependency_overrides.clear()
 
 
@@ -125,14 +126,31 @@ def test_create_device_repo():
         "status": "ok",
     }
 
+
+
+
 def fake_temperature_service(
     request: httpx.Request,
     )-> httpx.Response:
+    assert str(request.url) == "http://localhost:9000/devices/1/temperature"
+
     return httpx.Response(
         status_code=200,
         json={
             "device_id": 1,
             "temperature_celsius": 72.5,
+            
         },
     )
+
+def test_get_device_temperature(client):
+    response = client.get("/devices/1/temperature")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "device_id": 1,
+        "temperature_celsius": 72.5,
+    }
+    
+
 
