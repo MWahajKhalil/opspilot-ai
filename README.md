@@ -1,19 +1,20 @@
 # OpsPilot AI
 
-OpsPilot AI is a growing industrial operations and device-reliability platform. The current version provides a structured FastAPI backend for registering, listing, filtering, and retrieving devices. Future checkpoints will expand the same project with persistent storage, simulated telemetry, operational alerts, AI-assisted investigations, and production infrastructure.
+OpsPilot AI is a growing industrial operations and device-reliability platform. The current version provides a structured FastAPI backend for registering, listing, filtering, and retrieving devices, plus an experimental temperature endpoint that calls an external HTTP service. Future checkpoints will expand the same project with persistent storage, simulated telemetry, operational alerts, AI-assisted investigations, and production infrastructure.
 
-> **Current scope:** Module 9 establishes the FastAPI application structure and an in-memory Device API. Later capabilities listed in the roadmap are planned and are not implemented yet.
+> **Current scope:** The Module 9 Device API and the core CP2A layered-backend exercise are implemented. The temperature endpoint requires a separate provider at `http://localhost:9000`; this repository does not supply one. Tests simulate that provider without live network access. Later capabilities listed in the roadmap are planned, not implemented.
 
 ## Current features
 
 - FastAPI application with lifespan startup and shutdown handling
-- Layered application structure using API, schema, service, and dependency modules
+- Layered application structure using API, schema, service, repository, external-client, and dependency modules
 - Pydantic request and response validation
 - Device collection endpoint with optional status filtering
 - Individual device lookup using a path parameter
 - Device creation using a JSON request body
 - Explicit `200`, `201`, `404`, and `422` HTTP behavior
 - Dependency injection with FastAPI `Depends()`
+- External temperature lookup for an existing device, with upstream HTTP/request failures translated to `503`
 - Automated API tests using pytest and FastAPI `TestClient`
 - Interactive OpenAPI documentation provided by FastAPI
 
@@ -24,14 +25,16 @@ HTTP request
     ↓
 FastAPI router          app/api/
     ↓
-Pydantic schemas        app/schemas/
+Dependency providers    app/dependencies.py
     ↓
 Device service          app/services/
+    ├── In-memory repository    app/repositories/
+    └── Temperature client      app/clients/ → external HTTP service
     ↓
-In-memory device list
+Pydantic response       app/schemas/
 ```
 
-The dependency provider in `app/dependencies.py` supplies the shared `DeviceService` instance to the routes. This keeps HTTP handling separate from device-related business logic and allows tests to replace the dependency with an isolated service instance.
+The dependency providers in `app/dependencies.py` connect the repository, HTTP client, temperature client, and device service. The service checks that a device exists before requesting its temperature. Tests override the repository and HTTP client to use fresh in-memory data and a fake external response.
 
 ## Project structure
 
@@ -42,9 +45,17 @@ opspilot-ai/
 │   │   ├── api/
 │   │   │   └── device.py
 │   │   ├── schemas/
-│   │   │   └── device.py
+│   │   │   ├── device.py
+│   │   │   └── telemetry.py
 │   │   ├── services/
 │   │   │   └── device.py
+│   │   ├── repositories/
+│   │   │   └── device.py
+│   │   ├── clients/
+│   │   │   └── temperature.py
+│   │   ├── errors/
+│   │   │   ├── device.py
+│   │   │   └── temperature.py
 │   │   ├── dependencies.py
 │   │   └── main.py
 │   ├── tests/
@@ -65,8 +76,9 @@ opspilot-ai/
 | `GET` | `/devices?status=warning` | Filter devices by status | `200` |
 | `GET` | `/devices/{device_id}` | Retrieve one device | `200` |
 | `POST` | `/devices` | Create a device | `201` |
+| `GET` | `/devices/{device_id}/temperature` | Request temperature from the configured external service | `200` |
 
-A request for an unknown device returns `404`. Invalid path parameters or request bodies return `422` through FastAPI and Pydantic validation.
+A request for an unknown local device returns `404`. Invalid path parameters or request bodies return `422` through FastAPI and Pydantic validation. If the external temperature service returns an HTTP error or its request fails, the temperature endpoint returns `503`.
 
 ## Run locally
 
@@ -129,7 +141,7 @@ cd backend
 python -m pytest -v
 ```
 
-The current suite contains nine API tests covering health, listing, query filtering, device lookup, device creation, persistence within a service instance, and validation/error responses.
+The current suite contains twelve tests covering the Device API, repository creation, temperature success, and upstream HTTP-error translation. The temperature tests use a fake HTTP transport and do not need the external service running.
 
 ## Current limitations
 
@@ -137,7 +149,10 @@ The current suite contains nine API tests covering health, listing, query filter
 - Data resets when the application restarts.
 - Device statuses are currently plain strings.
 - Authentication and authorization are not implemented.
-- No real or simulated telemetry is connected yet.
+- No temperature provider or simulator is included; the configured `localhost:9000` endpoint is only an integration target.
+- Timeout translation is implemented through HTTPX request-error handling, but has no dedicated timeout test.
+- Invalid JSON or schema-invalid provider responses are not yet translated to a stable application error.
+- The shared HTTP client is created at module import and is not yet closed through application lifespan.
 
 ## Planned growth
 

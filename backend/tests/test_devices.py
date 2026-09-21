@@ -132,16 +132,30 @@ def test_create_device_repo():
 def fake_temperature_service(
     request: httpx.Request,
     )-> httpx.Response:
-    assert str(request.url) == "http://localhost:9000/devices/1/temperature"
+    
+    url = str(request.url)
 
-    return httpx.Response(
-        status_code=200,
-        json={
+    assert url in ("http://localhost:9000/devices/1/temperature", "http://localhost:9000/devices/2/temperature")
+
+
+    if request.url.path == "/devices/1/temperature":
+        return httpx.Response(
+            status_code=200,
+            json={ 
             "device_id": 1,
             "temperature_celsius": 72.5,
             
         },
     )
+
+    if request.url.path == "/devices/2/temperature":
+        return httpx.Response(
+            status_code=503,
+            content="service unavailable",
+        )
+        
+    
+    
 
 def test_get_device_temperature(client):
     response = client.get("/devices/1/temperature")
@@ -151,6 +165,15 @@ def test_get_device_temperature(client):
         "device_id": 1,
         "temperature_celsius": 72.5,
     }
+
+def test_temperature_provider_failure_503(client):  
+    response = client.get("/devices/2/temperature")
+    assert response.status_code == 503
+    assert response.json() == {
+        "detail": "Temperature service is not available"
+    }
+
+
     
 
 
