@@ -26,3 +26,5 @@ class TemperatureClient:
         data = response.json()
 
         return TemperatureReading.model_validate(data)
+
+        

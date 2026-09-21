@@ -6,6 +6,7 @@ from app.repositories.device import DeviceRepository
 from app.schemas.device import DeviceCreate, DeviceResponse
 from app.schemas.telemetry import TemperatureReading
 
+
 class DeviceService:
     def __init__(
         self,

@@ -7,6 +7,8 @@ from app.errors.device import DeviceNotFoundError
 from app.schemas.device import DeviceCreate, DeviceResponse
 from app.schemas.telemetry import TemperatureReading
 from app.services.device import DeviceService
+from app.errors.temperature import TemperatureServiceError
+
 
 router = APIRouter(prefix="/devices", tags=["devices"])
 
@@ -47,3 +49,5 @@ def get_temperature_for_device(
         return service.get_temperature_for_device(device_id)
     except DeviceNotFoundError as error:
         raise HTTPException(status_code=404, detail=str(error))
+    except TemperatureServiceError as error:
+        raise HTTPException(status_code=503, detail=str(error))
