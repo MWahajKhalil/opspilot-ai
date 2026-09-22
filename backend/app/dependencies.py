@@ -1,5 +1,5 @@
 import httpx
-from fastapi import Depends
+from fastapi import Depends, Request
 
 #from unittest.mock import Mock
 from app.clients.temperature import TemperatureClient
@@ -8,15 +8,15 @@ from app.services.device import DeviceService
 
 _device_repository = DeviceRepository()
 
-_httpx_client = httpx.AsyncClient()
 
 
 def get_device_repository() -> DeviceRepository:
     return _device_repository
 
 
-def get_http_client() -> httpx.AsyncClient:
-    return _httpx_client
+
+def get_http_client(request: Request) -> httpx.AsyncClient:
+    return request.app.state.http_client
 
 
 def get_temperature_client(

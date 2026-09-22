@@ -17,7 +17,9 @@ class TemperatureClient:
             )
 
             response.raise_for_status()
-
+        
+        except httpx.TimeoutException:
+            raise TemperatureServiceError(device_id, "Temperature service is not available")
         except httpx.HTTPStatusError:
             raise TemperatureServiceError(device_id, "Temperature service is not available")
         except httpx.RequestError:
