@@ -5,14 +5,14 @@ from app.errors.temperature import TemperatureServiceError
 
 
 class TemperatureClient:
-    def __init__(self, http_client: httpx.Client, base_url: str):
+    def __init__(self, http_client: httpx.AsyncClient, base_url: str):
         self._http_client = http_client
         self._base_url = base_url
 
-    def get_temperature(self, device_id: int) -> TemperatureReading:
+    async def get_temperature(self, device_id: int) -> TemperatureReading:
         
         try:
-            response = self._http_client.get(
+            response = await self._http_client.get(
                 f"{self._base_url}/devices/{device_id}/temperature"
             )
 

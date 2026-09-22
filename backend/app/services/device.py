@@ -35,9 +35,9 @@ class DeviceService:
         return self._device_repository.create_device(device)
 
 
-    def get_temperature_for_device(self, device_id: int) -> TemperatureReading:
+    async def get_temperature_for_device(self, device_id: int) -> TemperatureReading:
         self.get_device(device_id)
 
-        temperature_reading = self._temperature_client.get_temperature(device_id)
+        temperature_reading = await self._temperature_client.get_temperature(device_id)
 
         return temperature_reading
