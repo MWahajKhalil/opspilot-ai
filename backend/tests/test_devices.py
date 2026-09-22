@@ -11,20 +11,37 @@ from app.schemas.device import DeviceCreate
 
 
 
+# @pytest.fixture
+# def client():
+#     repository = DeviceRepository()
+
+#     transport = httpx.MockTransport(fake_temperature_service)
+#     http_client = httpx.AsyncClient(transport=transport)
+
+#     app.dependency_overrides[get_device_repository] = lambda: repository
+#     app.dependency_overrides[get_http_client] = lambda: http_client
+
+#     with TestClient(app) as test_client:
+#         yield test_client
+    
+#     http_client.close()
+#     app.dependency_overrides.clear()
+
 @pytest.fixture
 def client():
-    repository = DeviceRepository()
-
+    repository = DeviceRepository() 
     transport = httpx.MockTransport(fake_temperature_service)
-    http_client = httpx.Client(transport=transport)
+
+    async def get_test_http_client():
+        async with httpx.AsyncClient(transport=transport) as http_client:
+            yield http_client
 
     app.dependency_overrides[get_device_repository] = lambda: repository
-    app.dependency_overrides[get_http_client] = lambda: http_client
+    app.dependency_overrides[get_http_client] = get_test_http_client
 
     with TestClient(app) as test_client:
         yield test_client
-    
-    http_client.close()
+
     app.dependency_overrides.clear()
 
 
