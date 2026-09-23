@@ -152,7 +152,7 @@ def fake_temperature_service(
     
     url = str(request.url)
 
-    assert url in ("http://localhost:9000/devices/1/temperature", "http://localhost:9000/devices/2/temperature")
+    assert url in ("http://localhost:9000/devices/1/temperature", "http://localhost:9000/devices/2/temperature", "http://localhost:9000/devices/3/temperature")
 
 
     if request.url.path == "/devices/1/temperature":
@@ -170,7 +170,12 @@ def fake_temperature_service(
             status_code=503,
             content="service unavailable",
         )
-        
+    
+    if request.url.path == "/devices/3/temperature":
+        raise httpx.ReadTimeout(
+        "Simulated provider timeout",
+        request=request,
+    )
     
     
 
@@ -193,4 +198,17 @@ def test_temperature_provider_failure_503(client):
 
     
 
+def test_temperature_timeout_returns_503(client):
+    create_response = client.post(
+        "/devices",
+        json={"name": "Timeout Device", "status": "ok"},
+    )
+    assert create_response.status_code == 201
+    assert create_response.json()["id"] == 3
 
+    response = client.get("/devices/3/temperature")
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "detail": "Temperature service timed out"
+    }
