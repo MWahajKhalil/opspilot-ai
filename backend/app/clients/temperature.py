@@ -31,7 +31,8 @@ class TemperatureClient:
         except httpx.RequestError:
             raise TemperatureServiceError(device_id, "Temperature service is not available")
         except (json.JSONDecodeError, ValidationError):
-            raise TemperatureServiceError(device_id, "Temperature service is not available")
+            raise TemperatureServiceError(device_id, "Temperature service returned invalid data")
+        
 
         
 

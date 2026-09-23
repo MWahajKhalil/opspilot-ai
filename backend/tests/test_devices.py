@@ -152,7 +152,7 @@ def fake_temperature_service(
     
     url = str(request.url)
 
-    assert url in ("http://localhost:9000/devices/1/temperature", "http://localhost:9000/devices/2/temperature", "http://localhost:9000/devices/3/temperature")
+    assert url in ("http://localhost:9000/devices/1/temperature", "http://localhost:9000/devices/2/temperature", "http://localhost:9000/devices/3/temperature", "http://localhost:9000/devices/4/temperature", )
 
 
     if request.url.path == "/devices/1/temperature":
@@ -164,7 +164,15 @@ def fake_temperature_service(
             
         },
     )
-
+    
+    if request.url.path == "/devices/4/temperature":
+        return httpx.Response(
+            status_code=200,
+            json={
+                "device_id": 4,
+                "temperature_celsius": "not-a-temperature",
+            },
+        )
     if request.url.path == "/devices/2/temperature":
         return httpx.Response(
             status_code=503,
@@ -211,4 +219,22 @@ def test_temperature_timeout_returns_503(client):
     assert response.status_code == 503
     assert response.json() == {
         "detail": "Temperature service timed out"
+    }
+
+def test_invalid_temperature_schema_returns_503(client):
+    client.post(
+        "/devices",
+        json={"name": "Device 3", "status": "ok"},
+    )
+    create_response = client.post(
+        "/devices",
+        json={"name": "Invalid Data Device", "status": "ok"},
+    )
+    assert create_response.json()["id"] == 4
+
+    response = client.get("/devices/4/temperature")
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "detail": "Temperature service returned invalid data"
     }
