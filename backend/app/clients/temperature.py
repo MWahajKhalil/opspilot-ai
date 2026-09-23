@@ -1,10 +1,13 @@
-import httpx, json
+import httpx
+import json
+import logging
 
 from app.schemas.telemetry import TemperatureReading
 from app.errors.temperature import TemperatureServiceError
 from pydantic import ValidationError
 
 
+logger = logging.getLogger(__name__)
 class TemperatureClient:
     def __init__(self, http_client: httpx.AsyncClient, base_url: str):
         self._http_client = http_client
@@ -25,12 +28,36 @@ class TemperatureClient:
             return TemperatureReading.model_validate(data)
         
         except httpx.TimeoutException:
+            logger.warning(
+                "temperature_provider_timeout device_id=%s",
+                device_id,
+            )            
             raise TemperatureServiceError(device_id, "Temperature service timed out")
-        except httpx.HTTPStatusError:
+
+            
+        except httpx.HTTPStatusError as error:
+            logger.warning(
+                "temperature_provider_http_error device_id=%s status_code=%s",
+                device_id,
+                error.response.status_code,
+            )
             raise TemperatureServiceError(device_id, "Temperature service is not available")
-        except httpx.RequestError:
+
+        except httpx.RequestError as error:
+            logger.warning(
+                "temperature_provider_request_error device_id=%s error_type=%s",
+                device_id,
+                type(error).__name__,
+            )
             raise TemperatureServiceError(device_id, "Temperature service is not available")
-        except (json.JSONDecodeError, ValidationError):
+
+
+        except (json.JSONDecodeError, ValidationError) as error:
+            logger.warning(
+                "temperature_provider_invalid_response device_id=%s error=%s",
+                device_id,
+                str(error),
+            )
             raise TemperatureServiceError(device_id, "Temperature service returned invalid data")
         
 

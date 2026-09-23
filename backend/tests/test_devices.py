@@ -152,7 +152,7 @@ def fake_temperature_service(
     
     url = str(request.url)
 
-    assert url in ("http://localhost:9000/devices/1/temperature", "http://localhost:9000/devices/2/temperature", "http://localhost:9000/devices/3/temperature", "http://localhost:9000/devices/4/temperature", )
+    assert url in ("http://localhost:9000/devices/1/temperature", "http://localhost:9000/devices/2/temperature", "http://localhost:9000/devices/3/temperature", "http://localhost:9000/devices/4/temperature","http://localhost:9000/devices/5/temperature" )
 
 
     if request.url.path == "/devices/1/temperature":
@@ -184,7 +184,13 @@ def fake_temperature_service(
         "Simulated provider timeout",
         request=request,
     )
-    
+
+    if request.url.path == "/devices/5/temperature":
+        return httpx.Response(
+            status_code=200,
+            content=b"{this is not valid JSON",
+            headers={"content-type": "application/json"},
+        )
     
 
 def test_get_device_temperature(client):
@@ -233,6 +239,29 @@ def test_invalid_temperature_schema_returns_503(client):
     assert create_response.json()["id"] == 4
 
     response = client.get("/devices/4/temperature")
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "detail": "Temperature service returned invalid data"
+    }
+
+
+def test_malformed_temperature_json_returns_503(client):
+    client.post(
+        "/devices",
+        json={"name": "Device 3", "status": "ok"},
+    )
+    client.post(
+        "/devices",
+        json={"name": "Device 4", "status": "ok"},
+    )
+    create_response = client.post(
+        "/devices",
+        json={"name": "Malformed JSON Device", "status": "ok"},
+    )
+    assert create_response.json()["id"] == 5
+
+    response = client.get("/devices/5/temperature")
 
     assert response.status_code == 503
     assert response.json() == {
