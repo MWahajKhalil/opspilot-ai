@@ -34,7 +34,7 @@ class TemperatureClient:
             )            
             raise TemperatureServiceError(device_id, "Temperature service timed out")
 
-            
+
         except httpx.HTTPStatusError as error:
             logger.warning(
                 "temperature_provider_http_error device_id=%s status_code=%s",
@@ -54,9 +54,9 @@ class TemperatureClient:
 
         except (json.JSONDecodeError, ValidationError) as error:
             logger.warning(
-                "temperature_provider_invalid_response device_id=%s error=%s",
+                "temperature_provider_invalid_response device_id=%s error_type=%s",
                 device_id,
-                str(error),
+                type(error).__name__,
             )
             raise TemperatureServiceError(device_id, "Temperature service returned invalid data")
         
