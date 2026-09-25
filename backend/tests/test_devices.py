@@ -28,7 +28,10 @@ from app.schemas.device import DeviceCreate
 #     app.dependency_overrides.clear()
 
 @pytest.fixture
-def client():
+def client(monkeypatch):
+    monkeypatch.setenv("OPSPILOT_API_KEY", "test-api-key")
+
+    
     repository = DeviceRepository() 
     transport = httpx.MockTransport(fake_temperature_service)
 
@@ -39,7 +42,7 @@ def client():
     app.dependency_overrides[get_device_repository] = lambda: repository
     app.dependency_overrides[get_http_client] = get_test_http_client
 
-    with TestClient(app) as test_client:
+    with TestClient(app, headers={"X-API-Key": "test-api-key"}) as test_client:
         yield test_client
 
     app.dependency_overrides.clear()

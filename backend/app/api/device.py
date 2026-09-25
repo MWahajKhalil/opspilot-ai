@@ -8,9 +8,10 @@ from app.schemas.device import DeviceCreate, DeviceResponse
 from app.schemas.telemetry import TemperatureReading
 from app.services.device import DeviceService
 from app.errors.temperature import TemperatureServiceError
+from app.security import require_api_key
 
-router = APIRouter(prefix="/devices", tags=["devices"])
-
+router = APIRouter(prefix="/devices", tags=["devices"], dependencies=[Depends(require_api_key)])
+#
 
 @router.get("", response_model=list[DeviceResponse])
 def list_devices(
