@@ -55,6 +55,21 @@ def test_health_check(client):
     assert response.json() == {"status": "ok"}
 
 
+#unauthorired access we are not passing api key here because we are testing the authentication middleware
+#which will return 401 if the api key is not present
+def test_devices_require_api_key(monkeypatch):
+    monkeypatch.setenv("OPSPILOT_API_KEY", "test-api-key")
+
+    with TestClient(app) as unauthenticated_client:
+        response = unauthenticated_client.get("/devices")
+
+
+    assert response.status_code == 401
+    assert response.json() == {
+        "detail": "Invalid or missing API key"
+    }
+
+
 def test_list_devices(client):
     response = client.get("/devices")
 
