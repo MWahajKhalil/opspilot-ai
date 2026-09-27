@@ -5,6 +5,12 @@ from app.errors.device import DeviceNotFoundError
 from app.repositories.device import DeviceRepository
 from app.schemas.device import DeviceCreate, DeviceResponse
 from app.schemas.telemetry import TemperatureReading
+from app.schemas.action import DeviceAction
+
+APPROVAL_REQUIRED_ACTIONS = {
+    DeviceAction.RESTART,
+    DeviceAction.SHUTDOWN,
+}
 
 
 class DeviceService:

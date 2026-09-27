@@ -48,11 +48,6 @@ def client(monkeypatch):
     app.dependency_overrides.clear()
 
 
-def test_health_check(client):
-    response = client.get("/health")
-
-    assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
 
 
 #unauthorired access we are not passing api key here because we are testing the authentication middleware
@@ -68,6 +63,30 @@ def test_devices_require_api_key(monkeypatch):
     assert response.json() == {
         "detail": "Invalid or missing API key"
     }
+
+#for incorrect key 
+def test_devices_reject_incorrect_api_key(monkeypatch):
+    monkeypatch.setenv("OPSPILOT_API_KEY", "test-api-key")
+
+    with TestClient(
+        app,
+        headers={"X-API-Key": "wrong-key"},
+    ) as incorrect_key_client:
+        response = incorrect_key_client.get("/devices")
+
+    assert response.status_code == 401
+    assert response.json() == {
+        "detail": "Invalid or missing API key"
+    }
+
+def test_health_check():
+    with TestClient(app) as public_client:
+        response = public_client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
 
 
 def test_list_devices(client):
