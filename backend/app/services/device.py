@@ -5,7 +5,7 @@ from app.errors.device import DeviceNotFoundError
 from app.repositories.device import DeviceRepository
 from app.schemas.device import DeviceCreate, DeviceResponse
 from app.schemas.telemetry import TemperatureReading
-from app.schemas.action import DeviceAction, DeviceActionRequest, DeviceA
+from app.schemas.action import DeviceAction, DeviceActionRequest, DeviceActionResponse
 
 APPROVAL_REQUIRED_ACTIONS = {
     DeviceAction.RESTART,
@@ -53,15 +53,26 @@ class DeviceService:
         self,
         device_id: int,
         request: DeviceActionRequest
-    )-> None:
+    )-> DeviceActionResponse:
 
         self.get_device(device_id)
-        action = request.action
-        approved_actions = {
-            DeviceAction.RESTART,
-            DeviceAction.SHUTDOWN,
-        }
+        action = request.action 
+        if action in APPROVAL_REQUIRED_ACTIONS:
+            status = "approval_required"  
+        else:
+            status = "accepted"
+
+        return DeviceActionResponse(
+            device_id=device_id,
+            action=action,  
+            status=status,
+        )
+
     
+
+
+
+
     
 
 

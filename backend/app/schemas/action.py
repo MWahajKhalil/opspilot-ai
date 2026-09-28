@@ -15,7 +15,7 @@ class DeviceActionRequest(BaseModel):
 class DeviceActionResponse(BaseModel):
     device_id: int
     action: DeviceAction
-    status: Literal["executed", "approval_required"]
+    status: Literal["accepted", "approval_required"]
 
 
 
