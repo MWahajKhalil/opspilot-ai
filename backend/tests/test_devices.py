@@ -1,6 +1,5 @@
 import httpx
 import pytest
-
 from fastapi.testclient import TestClient
 
 from app.dependencies import get_device_repository, get_http_client
@@ -8,31 +7,11 @@ from app.main import app
 from app.repositories.device import DeviceRepository
 from app.schemas.device import DeviceCreate
 
-
-
-
-# @pytest.fixture
-# def client():
-#     repository = DeviceRepository()
-
-#     transport = httpx.MockTransport(fake_temperature_service)
-#     http_client = httpx.AsyncClient(transport=transport)
-
-#     app.dependency_overrides[get_device_repository] = lambda: repository
-#     app.dependency_overrides[get_http_client] = lambda: http_client
-
-#     with TestClient(app) as test_client:
-#         yield test_client
-    
-#     http_client.close()
-#     app.dependency_overrides.clear()
-
 @pytest.fixture
 def client(monkeypatch):
     monkeypatch.setenv("OPSPILOT_API_KEY", "test-api-key")
 
-    
-    repository = DeviceRepository() 
+    repository = DeviceRepository()
     transport = httpx.MockTransport(fake_temperature_service)
 
     async def get_test_http_client():
@@ -47,24 +26,15 @@ def client(monkeypatch):
 
     app.dependency_overrides.clear()
 
-
-
-
-#unauthorired access we are not passing api key here because we are testing the authentication middleware
-#which will return 401 if the api key is not present
 def test_devices_require_api_key(monkeypatch):
     monkeypatch.setenv("OPSPILOT_API_KEY", "test-api-key")
 
     with TestClient(app) as unauthenticated_client:
         response = unauthenticated_client.get("/devices")
 
-
     assert response.status_code == 401
-    assert response.json() == {
-        "detail": "Invalid or missing API key"
-    }
+    assert response.json() == {"detail": "Invalid or missing API key"}
 
-#for incorrect key 
 def test_devices_reject_incorrect_api_key(monkeypatch):
     monkeypatch.setenv("OPSPILOT_API_KEY", "test-api-key")
 
@@ -75,9 +45,7 @@ def test_devices_reject_incorrect_api_key(monkeypatch):
         response = incorrect_key_client.get("/devices")
 
     assert response.status_code == 401
-    assert response.json() == {
-        "detail": "Invalid or missing API key"
-    }
+    assert response.json() == {"detail": "Invalid or missing API key"}
 
 def test_health_check():
     with TestClient(app) as public_client:
@@ -85,9 +53,6 @@ def test_health_check():
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
-
-
-
 
 def test_list_devices(client):
     response = client.get("/devices")
@@ -180,28 +145,28 @@ def test_create_device_repo():
         "status": "ok",
     }
 
-
-
-
 def fake_temperature_service(
     request: httpx.Request,
-    )-> httpx.Response:
-    
+) -> httpx.Response:
     url = str(request.url)
 
-    assert url in ("http://localhost:9000/devices/1/temperature", "http://localhost:9000/devices/2/temperature", "http://localhost:9000/devices/3/temperature", "http://localhost:9000/devices/4/temperature","http://localhost:9000/devices/5/temperature" )
-
+    assert url in (
+        "http://localhost:9000/devices/1/temperature",
+        "http://localhost:9000/devices/2/temperature",
+        "http://localhost:9000/devices/3/temperature",
+        "http://localhost:9000/devices/4/temperature",
+        "http://localhost:9000/devices/5/temperature",
+    )
 
     if request.url.path == "/devices/1/temperature":
         return httpx.Response(
             status_code=200,
-            json={ 
-            "device_id": 1,
-            "temperature_celsius": 72.5,
-            
-        },
-    )
-    
+            json={
+                "device_id": 1,
+                "temperature_celsius": 72.5,
+            },
+        )
+
     if request.url.path == "/devices/4/temperature":
         return httpx.Response(
             status_code=200,
@@ -210,17 +175,18 @@ def fake_temperature_service(
                 "temperature_celsius": "not-a-temperature",
             },
         )
+
     if request.url.path == "/devices/2/temperature":
         return httpx.Response(
             status_code=503,
             content="service unavailable",
         )
-    
+
     if request.url.path == "/devices/3/temperature":
         raise httpx.ReadTimeout(
-        "Simulated provider timeout",
-        request=request,
-    )
+            "Simulated provider timeout",
+            request=request,
+        )
 
     if request.url.path == "/devices/5/temperature":
         return httpx.Response(
@@ -228,7 +194,8 @@ def fake_temperature_service(
             content=b"{this is not valid JSON",
             headers={"content-type": "application/json"},
         )
-    
+
+    raise AssertionError(f"Unhandled fake provider URL: {url}")
 
 def test_get_device_temperature(client):
     response = client.get("/devices/1/temperature")
@@ -239,15 +206,10 @@ def test_get_device_temperature(client):
         "temperature_celsius": 72.5,
     }
 
-def test_temperature_provider_failure_503(client):  
+def test_temperature_provider_failure_503(client):
     response = client.get("/devices/2/temperature")
     assert response.status_code == 503
-    assert response.json() == {
-        "detail": "Temperature service is not available"
-    }
-
-
-    
+    assert response.json() == {"detail": "Temperature service is not available"}
 
 def test_temperature_timeout_returns_503(client):
     create_response = client.post(
@@ -260,9 +222,7 @@ def test_temperature_timeout_returns_503(client):
     response = client.get("/devices/3/temperature")
 
     assert response.status_code == 503
-    assert response.json() == {
-        "detail": "Temperature service timed out"
-    }
+    assert response.json() == {"detail": "Temperature service timed out"}
 
 def test_invalid_temperature_schema_returns_503(client):
     client.post(
@@ -278,10 +238,7 @@ def test_invalid_temperature_schema_returns_503(client):
     response = client.get("/devices/4/temperature")
 
     assert response.status_code == 503
-    assert response.json() == {
-        "detail": "Temperature service returned invalid data"
-    }
-
+    assert response.json() == {"detail": "Temperature service returned invalid data"}
 
 def test_malformed_temperature_json_returns_503(client):
     client.post(
@@ -301,9 +258,7 @@ def test_malformed_temperature_json_returns_503(client):
     response = client.get("/devices/5/temperature")
 
     assert response.status_code == 503
-    assert response.json() == {
-        "detail": "Temperature service returned invalid data"
-    }
+    assert response.json() == {"detail": "Temperature service returned invalid data"}
 
 def test_safe_device_action_is_accepted(client):
     response = client.post(

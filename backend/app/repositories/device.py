@@ -4,7 +4,7 @@ from app.schemas.device import DeviceCreate, DeviceResponse
 
 
 class DeviceRepository:
-    def __init__(self):
+    def __init__(self) -> None:
         self._devices = [
             DeviceResponse(id=1, name="Device 1", status="ok"),
             DeviceResponse(id=2, name="Device 2", status="warning"),
@@ -22,7 +22,6 @@ class DeviceRepository:
                 return device
         return None
 
-
     def create_device(self, device: DeviceCreate) -> DeviceResponse:
         new_id = max([existing.id for existing in self._devices] + [0]) + 1
 
@@ -34,5 +33,3 @@ class DeviceRepository:
 
         self._devices.append(new_device)
         return new_device
-    
-    

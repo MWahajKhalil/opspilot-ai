@@ -4,16 +4,18 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.dependencies import get_device_service
 from app.errors.device import DeviceNotFoundError
+from app.errors.temperature import TemperatureServiceError
+from app.schemas.action import DeviceActionRequest, DeviceActionResponse
 from app.schemas.device import DeviceCreate, DeviceResponse
 from app.schemas.telemetry import TemperatureReading
-from app.services.device import DeviceService
-from app.errors.temperature import TemperatureServiceError
 from app.security import require_api_key
-from app.schemas.action import DeviceActionRequest, DeviceActionResponse
+from app.services.device import DeviceService
 
-
-router = APIRouter(prefix="/devices", tags=["devices"], dependencies=[Depends(require_api_key)])
-#
+router = APIRouter(
+    prefix="/devices",
+    tags=["devices"],
+    dependencies=[Depends(require_api_key)],
+)
 
 @router.get("", response_model=list[DeviceResponse])
 def list_devices(
@@ -54,18 +56,17 @@ async def get_temperature_for_device(
     except TemperatureServiceError as error:
         raise HTTPException(status_code=503, detail=str(error))
 
-
-
-
-@router.post("/{device_id}/actions", response_model=DeviceActionResponse, status_code=202)#202 means accepted without claiming execution 
+@router.post(
+    "/{device_id}/actions",
+    response_model=DeviceActionResponse,
+    status_code=202,
+)
 def request_device_action(
     device_id: int,
     request: DeviceActionRequest,
     service: DeviceService = Depends(get_device_service),
 ) -> DeviceActionResponse:
-    try:  
+    try:
         return service.request_action(device_id, request)
     except DeviceNotFoundError as error:
         raise HTTPException(status_code=404, detail=str(error))
-
-

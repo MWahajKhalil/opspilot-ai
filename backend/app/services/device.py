@@ -1,11 +1,18 @@
+import logging
 from typing import Optional
 
 from app.clients.temperature import TemperatureClient
 from app.errors.device import DeviceNotFoundError
 from app.repositories.device import DeviceRepository
+from app.schemas.action import (
+    DeviceAction,
+    DeviceActionRequest,
+    DeviceActionResponse,
+)
 from app.schemas.device import DeviceCreate, DeviceResponse
 from app.schemas.telemetry import TemperatureReading
-from app.schemas.action import DeviceAction, DeviceActionRequest, DeviceActionResponse
+
+logger = logging.getLogger(__name__)
 
 APPROVAL_REQUIRED_ACTIONS = {
     DeviceAction.RESTART,
@@ -36,55 +43,35 @@ class DeviceService:
             raise DeviceNotFoundError(device_id)
         return device
 
-
     def create_device(self, device: DeviceCreate) -> DeviceResponse:
         return self._device_repository.create_device(device)
 
-
     async def get_temperature_for_device(self, device_id: int) -> TemperatureReading:
         self.get_device(device_id)
+        return await self._temperature_client.get_temperature(device_id)
 
-        temperature_reading = await self._temperature_client.get_temperature(device_id)
-
-        return temperature_reading
-
-    
     def request_action(
         self,
         device_id: int,
-        request: DeviceActionRequest
-    )-> DeviceActionResponse:
-
+        request: DeviceActionRequest,
+    ) -> DeviceActionResponse:
         self.get_device(device_id)
-        action = request.action 
+        action = request.action
+
         if action in APPROVAL_REQUIRED_ACTIONS:
-            status = "approval_required"  
+            status = "approval_required"
         else:
             status = "accepted"
 
+        logger.info(
+            "device_action_decision device_id=%s action=%s status=%s",
+            device_id,
+            action.value,
+            status,
+        )
+
         return DeviceActionResponse(
             device_id=device_id,
-            action=action,  
+            action=action,
             status=status,
         )
-    
-
-    
-    
-
-    
-
-
-
-
-    
-
-
-        
-            
-
-        
-
-        
-
-

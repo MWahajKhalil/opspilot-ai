@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="920" viewBox="0 0 1600 920" role="img" aria-labelledby="title desc">
+  <title id="title">OpsPilot CP2B security boundary</title>
+  <desc id="desc">Public health, authenticated device routes, Pydantic validation, service policy, repository ownership, and controlled external HTTP are shown as separate trust boundaries.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><path d="M0 0L10 3.5L0 7Z" fill="#8fb4da"/></marker>
+    <style>
+      text{font-family:Inter,Arial,sans-serif;fill:#eaf2ff}.title{font-size:30px;font-weight:700}.sub{font-size:17px;fill:#a8bad2}.zone{fill:#0f2033;stroke:#36516d;stroke-width:2}.secure{fill:#142d2c;stroke:#4baf95;stroke-width:2}.external{fill:#2b2132;stroke:#c98c9b;stroke-width:2}.box{fill:#172b43;stroke:#557493;stroke-width:1.5}.head{font-size:21px;font-weight:700}.label{font-size:16px}.small{font-size:14px;fill:#b9c9dc}.arrow{stroke:#8fb4da;stroke-width:2.5;marker-end:url(#arrow)}.dash{stroke:#85c9b1;stroke-width:2;stroke-dasharray:7 5;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="920" fill="#091522"/>
+  <text x="42" y="48" class="title">CP2B security boundaries</text>
+  <text x="42" y="78" class="sub">What is public, authenticated, validated, application-controlled, and external</text>
+
+  <rect class="zone" x="35" y="115" width="260" height="690" rx="16"/>
+  <text class="head" x="60" y="155">Untrusted caller</text>
+  <rect class="box" x="65" y="205" width="200" height="88" rx="12"/><text class="label" x="90" y="238">Postman / client</text><text class="small" x="90" y="266">URL, JSON, headers</text>
+  <rect class="box" x="65" y="345" width="200" height="88" rx="12"/><text class="label" x="90" y="378">GET /health</text><text class="small" x="90" y="406">public readiness check</text>
+
+  <rect class="secure" x="340" y="115" width="825" height="690" rx="16"/>
+  <text class="head" x="365" y="155">OpsPilot trusted application boundary</text>
+  <rect class="box" x="385" y="195" width="250" height="110" rx="12"/><text class="label" x="410" y="228">API-key dependency</text><text class="small" x="410" y="255">environment vs header</text><text class="small" x="410" y="280">constant-time comparison</text>
+  <rect class="box" x="690" y="195" width="210" height="110" rx="12"/><text class="label" x="715" y="228">Pydantic</text><text class="small" x="715" y="255">types + enum allow-list</text><text class="small" x="715" y="280">invalid → 422</text>
+  <rect class="box" x="955" y="195" width="170" height="110" rx="12"/><text class="label" x="980" y="228">API route</text><text class="small" x="980" y="255">HTTP translation</text><text class="small" x="980" y="280">safe responses</text>
+
+  <rect class="box" x="520" y="390" width="270" height="125" rx="12"/><text class="label" x="545" y="425">DeviceService</text><text class="small" x="545" y="452">workflow + approval policy</text><text class="small" x="545" y="477">accepted / approval_required</text>
+  <rect class="box" x="385" y="610" width="250" height="110" rx="12"/><text class="label" x="410" y="643">DeviceRepository</text><text class="small" x="410" y="670">owned in-memory data</text><text class="small" x="410" y="695">existence check</text>
+  <rect class="box" x="805" y="610" width="290" height="110" rx="12"/><text class="label" x="830" y="643">TemperatureClient</text><text class="small" x="830" y="670">fixed target + timeout</text><text class="small" x="830" y="695">safe error translation</text>
+
+  <rect class="external" x="1210" y="115" width="350" height="690" rx="16"/>
+  <text class="head" x="1235" y="155">External boundary</text>
+  <rect class="box" x="1250" y="235" width="270" height="105" rx="12"/><text class="label" x="1275" y="268">Environment configuration</text><text class="small" x="1275" y="295">OPSPILOT_API_KEY</text><text class="small" x="1275" y="320">never returned or logged</text>
+  <rect class="box" x="1250" y="505" width="270" height="105" rx="12"/><text class="label" x="1275" y="538">Temperature provider</text><text class="small" x="1275" y="565">untrusted HTTP response</text><text class="small" x="1275" y="590">validated before use</text>
+  <rect class="box" x="1250" y="665" width="270" height="92" rx="12"/><text class="label" x="1275" y="698">No command provider</text><text class="small" x="1275" y="725">no real device execution</text>
+
+  <path class="arrow" d="M265 250H385"/><text class="small" x="298" y="235">/devices + key</text>
+  <path class="dash" d="M265 390H340"/><text class="small" x="285" y="375">public</text>
+  <path class="arrow" d="M635 250H690"/><path class="arrow" d="M900 250H955"/>
+  <path class="arrow" d="M1040 305V370H655V390"/>
+  <path class="arrow" d="M655 515V590H510V610"/>
+  <path class="arrow" d="M655 515V570H950V610"/>
+  <path class="dash" d="M1250 287H635"/><text class="small" x="930" y="272">server-only expected secret</text>
+  <path class="arrow" d="M1095 665H1250"/><text class="small" x="1120" y="650">controlled HTTP</text>
+  <text class="sub" x="42" y="855">Safe logs: event name, device ID, action/status, provider status, exception type.</text>
+  <text class="sub" x="42" y="885">Never log: API keys, authorization headers, secrets, or raw provider bodies.</text>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040" role="img" aria-labelledby="title desc">
+  <title id="title">OpsPilot CP2B action request sequence</title>
+  <desc id="desc">An authenticated device-action request passes through API-key validation, Pydantic validation, dependency injection, the route, service, repository, and approval policy.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><path d="M0 0L10 3.5L0 7Z" fill="#8fb4da"/></marker>
+    <style>
+      text{font-family:Inter,Arial,sans-serif;fill:#eaf2ff}.title{font-size:30px;font-weight:700}.sub{font-size:17px;fill:#a8bad2}.lane{fill:#13243a;stroke:#36516d;stroke-width:2}.head{font-size:17px;font-weight:650;text-anchor:middle}.life{stroke:#41607f;stroke-width:2;stroke-dasharray:7 7}.arrow{stroke:#8fb4da;stroke-width:2.5;marker-end:url(#arrow)}.return{stroke:#85c9b1;stroke-width:2.5;stroke-dasharray:7 5;marker-end:url(#arrow)}.label{font-size:15px;text-anchor:middle}.note{font-size:15px;fill:#dbeafe}.reject{fill:#2b2132;stroke:#c98c9b;stroke-width:1.5}.success{fill:#162e2c;stroke:#4baf95;stroke-width:1.5}
+    </style>
+  </defs>
+  <rect width="1600" height="1040" fill="#091522"/>
+  <text x="42" y="48" class="title">CP2B device action request</text>
+  <text x="42" y="78" class="sub">POST /devices/{id}/actions · authentication, validation, repository check, and safety policy</text>
+  <g>
+    <rect class="lane" x="25" y="108" width="155" height="58" rx="10"/><rect class="lane" x="220" y="108" width="155" height="58" rx="10"/><rect class="lane" x="415" y="108" width="155" height="58" rx="10"/><rect class="lane" x="610" y="108" width="155" height="58" rx="10"/><rect class="lane" x="805" y="108" width="155" height="58" rx="10"/><rect class="lane" x="1000" y="108" width="155" height="58" rx="10"/><rect class="lane" x="1195" y="108" width="155" height="58" rx="10"/><rect class="lane" x="1390" y="108" width="185" height="58" rx="10"/>
+    <text class="head" x="102" y="143">Caller</text><text class="head" x="297" y="143">API-key guard</text><text class="head" x="492" y="143">Pydantic</text><text class="head" x="687" y="143">Depends</text><text class="head" x="882" y="143">Route</text><text class="head" x="1077" y="143">DeviceService</text><text class="head" x="1272" y="143">Repository</text><text class="head" x="1482" y="143">Approval policy</text>
+  </g>
+  <path class="life" d="M102 166V1000M297 166V1000M492 166V1000M687 166V1000M882 166V1000M1077 166V1000M1272 166V1000M1482 166V1000"/>
+  <path class="arrow" d="M102 210H297"/><text class="label" x="200" y="200">POST + X-API-Key</text>
+  <rect class="reject" x="40" y="235" width="340" height="72" rx="10"/><text class="note" x="60" y="263">Failure boundary</text><text class="note" x="60" y="288">missing/wrong → 401 · no server key → 503</text>
+  <path class="arrow" d="M297 340H492"/><text class="label" x="395" y="330">valid key: continue</text>
+  <rect class="reject" x="400" y="365" width="340" height="72" rx="10"/><text class="note" x="420" y="393">Validation boundary</text><text class="note" x="420" y="418">unknown/missing action → automatic 422</text>
+  <path class="arrow" d="M492 470H687"/><text class="label" x="590" y="460">validated request</text>
+  <path class="return" d="M687 525H882"/><text class="label" x="785" y="515">inject service</text>
+  <path class="arrow" d="M882 580H1077"/><text class="label" x="980" y="570">request_action(id, request)</text>
+  <path class="arrow" d="M1077 635H1272"/><text class="label" x="1175" y="625">get_by_id(id)</text>
+  <path class="return" d="M1272 690H1077"/><text class="label" x="1175" y="680">device or None</text>
+  <rect class="reject" x="800" y="715" width="550" height="72" rx="10"/><text class="note" x="820" y="743">Missing device</text><text class="note" x="820" y="768">DeviceNotFoundError → route → 404</text>
+  <path class="arrow" d="M1077 825H1482"/><text class="label" x="1280" y="815">check approval-required set</text>
+  <rect class="success" x="800" y="855" width="755" height="112" rx="12"/><text class="note" x="820" y="883">Existing device</text><text class="note" x="820" y="913">inspect → accepted</text><text class="note" x="820" y="943">restart / shutdown → approval_required</text>
+  <path class="return" d="M1482 985H102"/><text class="label" x="792" y="975">202 DeviceActionResponse · no physical execution claimed</text>
+  <text class="sub" x="42" y="1020">Key boundary: only allow-listed actions reach the service; risky actions stop at the approval decision.</text>
+</svg>
