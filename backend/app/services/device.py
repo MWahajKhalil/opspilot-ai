@@ -67,6 +67,10 @@ class DeviceService:
             action=action,  
             status=status,
         )
+    
+
+    
+    
 
     
 

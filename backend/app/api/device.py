@@ -9,6 +9,8 @@ from app.schemas.telemetry import TemperatureReading
 from app.services.device import DeviceService
 from app.errors.temperature import TemperatureServiceError
 from app.security import require_api_key
+from app.schemas.action import DeviceActionRequest, DeviceActionResponse
+
 
 router = APIRouter(prefix="/devices", tags=["devices"], dependencies=[Depends(require_api_key)])
 #
@@ -51,3 +53,19 @@ async def get_temperature_for_device(
         raise HTTPException(status_code=404, detail=str(error))
     except TemperatureServiceError as error:
         raise HTTPException(status_code=503, detail=str(error))
+
+
+
+
+@router.post("/{device_id}/actions", response_model=DeviceActionResponse, status_code=202)#202 means accepted without claiming execution 
+def request_device_action(
+    device_id: int,
+    request: DeviceActionRequest,
+    service: DeviceService = Depends(get_device_service),
+) -> DeviceActionResponse:
+    try:  
+        return service.request_action(device_id, request)
+    except DeviceNotFoundError as error:
+        raise HTTPException(status_code=404, detail=str(error))
+
+

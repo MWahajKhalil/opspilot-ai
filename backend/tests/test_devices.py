@@ -304,3 +304,16 @@ def test_malformed_temperature_json_returns_503(client):
     assert response.json() == {
         "detail": "Temperature service returned invalid data"
     }
+
+def test_safe_device_action_is_accepted(client):
+    response = client.post(
+        "/devices/1/actions",
+        json={"action": "inspect"},
+    )
+
+    assert response.status_code == 202
+    assert response.json() == {
+        "device_id": 1,
+        "action": "inspect",
+        "status": "accepted",
+    }
