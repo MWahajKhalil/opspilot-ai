@@ -317,3 +317,29 @@ def test_safe_device_action_is_accepted(client):
         "action": "inspect",
         "status": "accepted",
     }
+
+
+def test_risky_device_action_requires_approval(client):
+    response = client.post(
+        "/devices/1/actions",
+        json={"action": "restart"},
+    )
+
+    assert response.status_code == 202
+    assert response.json() == {
+        "device_id": 1,
+        "action": "restart",
+        "status": "approval_required",
+    }
+
+def test_unknown_device_action_returns_422(client):
+    response = client.post(
+        "/devices/1/actions",
+        json={"action": "destroy"},
+    )
+
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"] == [
+        "body",
+        "action",
+    ]
