@@ -298,3 +298,11 @@ def test_unknown_device_action_returns_422(client):
         "body",
         "action",
     ]
+def test_missing_api_key_returns_401(client):
+    response = client.post(
+        "/devices/1/actions",
+        json={"action": "inspect"},
+    )
+
+    assert response.status_code == 401
+    assert response.json() == {"detail": "Invalid or missing API key"}
